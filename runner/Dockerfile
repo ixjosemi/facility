@@ -58,7 +58,13 @@ RUN archive=/tmp/docker-cli.tar.gz \
   && tar -xzf "$archive" --strip-components=1 -C /src \
   && ln -s /src /go/src/github.com/docker/cli \
   && cd /go/src/github.com/docker/cli \
+  # Docker CLI keeps its reviewed module graph in vendor.mod/vendor.sum. \
+  && cp vendor.mod go.mod \
+  && cp vendor.sum go.sum \
   && go mod edit -replace=golang.org/x/net=golang.org/x/net@v0.60.0 \
+  && go mod edit -replace=golang.org/x/crypto=golang.org/x/crypto@v0.56.0 \
+  && go mod edit -replace=golang.org/x/mod=golang.org/x/mod@v0.40.0 \
+  && go mod edit -replace=google.golang.org/grpc=google.golang.org/grpc@v1.83.2 \
   && VERSION="$DOCKER_CLI_VERSION" GITCOMMIT="$DOCKER_CLI_COMMIT" \
     CGO_ENABLED=0 GO_LINKMODE=static DISABLE_WARN_OUTSIDE_CONTAINER=1 \
     SOURCE_DATE_EPOCH=1785456000 GOFLAGS=-mod=mod ./scripts/build/binary \
